@@ -1,12 +1,15 @@
+-- V2__create_users_and_roles.sql
+-- Создание таблиц пользователей, ролей и их связей
+
 -- Таблица ролей
 CREATE TABLE IF NOT EXISTS roles (
-    id SERIAL PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(20) NOT NULL UNIQUE
 );
 
 -- Таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(120) NOT NULL,
@@ -27,15 +30,17 @@ CREATE TABLE IF NOT EXISTS user_roles (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
--- Добавляем начальные роли (используем условную вставку для H2)
-INSERT INTO roles (name)
-SELECT 'ROLE_ADMIN'
-WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ROLE_ADMIN');
+-- Создание индексов для users
+CREATE INDEX IF NOT EXISTS idx_users_member_id ON users(member_id);
+CREATE INDEX IF NOT EXISTS idx_users_trainer_id ON users(trainer_id);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
-INSERT INTO roles (name)
-SELECT 'ROLE_MEMBER'
-WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ROLE_MEMBER');
+-- Создание индексов для user_roles
+CREATE INDEX IF NOT EXISTS idx_user_roles_role_id ON user_roles(role_id);
 
-INSERT INTO roles (name)
-SELECT 'ROLE_TRAINER'
-WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ROLE_TRAINER');
+-- ПРОСТОЙ И БЕЗОПАСНЫЙ СПОСОБ для H2 - вставляем данные без проверки дубликатов
+-- В начале приложения таблица roles пустая, так что дубликатов не будет
+INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
+INSERT INTO roles (name) VALUES ('ROLE_MEMBER');
+INSERT INTO roles (name) VALUES ('ROLE_TRAINER');
