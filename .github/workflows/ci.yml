@@ -1,0 +1,85 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Generate certificate chain
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          mkdir -p src/main/resources/certs
+          chmod +x scripts/generate-cert-chain.sh
+          
+          # Исправленный вызов скрипта
+          bash scripts/generate-cert-chain.sh "ST-GITHUB-ACTIONS" "$KEYSTORE_PASSWORD"
+          
+          # Проверка создания keystore
+          echo "Checking if keystore was created..."
+          if [ -f "src/main/resources/certs/fitnessclub-keystore.p12" ]; then
+            echo "✅ Keystore created successfully"
+            echo "Keystore contents:"
+            keytool -list -keystore src/main/resources/certs/fitnessclub-keystore.p12 -storepass "$KEYSTORE_PASSWORD" | head -10
+          else
+            echo "❌ Keystore not found!"
+            echo "Directory contents:"
+            ls -la src/main/resources/certs/
+            exit 1
+          fi
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Run tests
+        run: |
+          # Явная передача пароля для тестов
+          export KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          echo "Running tests with TLS..."
+          mvn test
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fitnessclub-jar
+          path: target/fitnessclub-*.jar
+          retention-days: 30
+
+      - name: Upload keystore artifact (for deployment)
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystore
+          path: src/main/resources/certs/fitnessclub-keystore.p12
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Create Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            target/fitnessclub-*.jar
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
