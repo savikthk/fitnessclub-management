@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,8 +14,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
+/**
+ * Security Configuration с включённой CSRF защитой
+ * Ветка: demo/csrf-enabled
+ *
+ * CSRF токен передаётся в cookie (XSRF-TOKEN) и должен быть
+ * отправлен обратно в заголовке X-XSRF-TOKEN
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -22,9 +31,6 @@ public class SecurityConfig {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,20 +52,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // Для JWT обычно отключаем CSRF, так как используем stateless-аутентификацию
-        http.csrf(csrf -> csrf.disable());
+        // Включаем CSRF с CookieCsrfTokenRepository
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName("_csrf");
+
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(requestHandler)
+                .ignoringRequestMatchers("/h2-console/**", "/api/csrf-token")
+        );
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/h2-console/**", "/error").permitAll()
+                .requestMatchers("/api/auth/signup", "/api/csrf-token", "/h2-console/**", "/error").permitAll()
                 .anyRequest().authenticated()
         );
 
-        // Stateless-сессии для JWT
-        http.sessionManagement(session -> session.sessionCreationPolicy(
-                org.springframework.security.config.http.SessionCreationPolicy.STATELESS));
-
-        // Подключаем JWT-фильтр
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // Basic Auth для простоты тестирования CSRF
+        http.httpBasic(Customizer.withDefaults());
 
         // Для H2 консоли
         http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));

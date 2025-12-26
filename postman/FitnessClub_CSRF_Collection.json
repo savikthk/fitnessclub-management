@@ -1,0 +1,249 @@
+{
+  "info": {
+    "_postman_id": "csrf-enabled-collection",
+    "name": "FitnessClub - CSRF Enabled",
+    "description": "Коллекция для тестирования CSRF защиты. Сначала получите CSRF токен, затем используйте его в POST/PUT/DELETE запросах.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "admin",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "Admin123!",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Получение CSRF токена",
+      "item": [
+        {
+          "name": "Получить CSRF токен",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('csrfToken', jsonData.token);",
+                  "console.log('CSRF Token saved:', jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/csrf-token",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "csrf-token"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Запросы С CSRF токеном (должны работать)",
+      "item": [
+        {
+          "name": "Создать члена клуба (с CSRF)",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров\",\n  \"email\": \"ivan@test.com\",\n  \"phone\": \"+79001234567\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Создать тренера (с CSRF)",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров\",\n  \"email\": \"trainer@test.com\",\n  \"phone\": \"+79007654321\",\n  \"specialization\": \"Фитнес\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/trainers",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "trainers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Запросы БЕЗ CSRF токена (должна быть ошибка 403)",
+      "item": [
+        {
+          "name": "Создать члена БЕЗ CSRF (ошибка 403)",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Тест\",\n  \"lastName\": \"БезCSRF\",\n  \"email\": \"nocsrf@test.com\",\n  \"phone\": \"+79009999999\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Регистрация пользователя БЕЗ CSRF (ошибка 403)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"testuser@test.com\",\n  \"password\": \"Test123!\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/signup",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "signup"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. GET запросы (не требуют CSRF)",
+      "item": [
+        {
+          "name": "Получить всех членов",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Получить всех тренеров",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/trainers",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "trainers"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "csrfToken",
+      "value": ""
+    }
+  ]
+}
+
