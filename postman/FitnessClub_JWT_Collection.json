@@ -1,0 +1,653 @@
+{
+  "info": {
+    "_postman_id": "jwt-tokens-collection",
+    "name": "FitnessClub - JWT Tokens",
+    "description": "Полная коллекция для тестирования JWT авторизации и всех API эндпоинтов",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. CRUD операции (создание, редактирование, удаление)",
+      "item": [
+        {
+          "name": "Авторизация (получить токен)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "console.log('Access Token saved:', jsonData.accessToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/login",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Регистрация пользователя",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user1\",\n  \"email\": \"user1@test.com\",\n  \"password\": \"User123!\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/signup",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Создать члена клуба",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров\",\n  \"email\": \"ivan@test.com\",\n  \"phone\": \"+79001234567\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Создать второго члена клуба",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Мария\",\n  \"lastName\": \"Сидорова\",\n  \"email\": \"maria@test.com\",\n  \"phone\": \"+79002345678\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Редактировать члена клуба",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров-Измененный\",\n  \"email\": \"ivan.updated@test.com\",\n  \"phone\": \"+79001234567\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/members/1",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members", "1"]
+            }
+          }
+        },
+        {
+          "name": "Создать тренера",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров\",\n  \"email\": \"trainer@test.com\",\n  \"phone\": \"+79007654321\",\n  \"specialization\": \"Фитнес\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/trainers",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "trainers"]
+            }
+          }
+        },
+        {
+          "name": "Редактировать тренера",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров\",\n  \"email\": \"trainer@test.com\",\n  \"phone\": \"+79007654321\",\n  \"specialization\": \"Йога и Фитнес\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/trainers/1",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "trainers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Создать групповое занятие",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Утренняя йога\",\n  \"description\": \"Занятие йогой для начинающих\",\n  \"maxParticipants\": 15,\n  \"duration\": 60\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/workout-classes",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "workout-classes"]
+            }
+          }
+        },
+        {
+          "name": "Создать бронирование",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 1,\n  \"workoutClassId\": 1\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/bookings",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "bookings"]
+            }
+          }
+        },
+        {
+          "name": "Удалить бронирование",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/bookings/1",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "bookings", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Тренировки, подписки и отчёты",
+      "item": [
+        {
+          "name": "Создать персональную тренировку",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 1,\n  \"trainerId\": 1,\n  \"sessionDate\": \"2025-01-15T10:00:00\",\n  \"duration\": 60,\n  \"notes\": \"Первая персональная тренировка\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/training-sessions",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "training-sessions"]
+            }
+          }
+        },
+        {
+          "name": "Получить все тренировки",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/training-sessions",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "training-sessions"]
+            }
+          }
+        },
+        {
+          "name": "Тренировки клиента (по ID)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/training-sessions/member/1",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "training-sessions", "member", "1"]
+            }
+          }
+        },
+        {
+          "name": "Тренировки тренера (по ID)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/training-sessions/trainer/1",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "training-sessions", "trainer", "1"]
+            }
+          }
+        },
+        {
+          "name": "Удалить тренировку",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/training-sessions/1",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "training-sessions", "1"]
+            }
+          }
+        },
+        {
+          "name": "Создать подписку (1 клиент)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 1,\n  \"type\": \"MONTHLY\",\n  \"startDate\": \"2025-01-01\",\n  \"endDate\": \"2025-02-01\",\n  \"price\": 3000,\n  \"autoRenew\": true\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/memberships",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "memberships"]
+            }
+          }
+        },
+        {
+          "name": "Создать подписку (2 клиент - близкая дата окончания)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 2,\n  \"type\": \"MONTHLY\",\n  \"startDate\": \"2024-12-01\",\n  \"endDate\": \"2025-01-03\",\n  \"price\": 3000,\n  \"autoRenew\": false\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/memberships",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "memberships"]
+            }
+          }
+        },
+        {
+          "name": "Включить автопродление подписки",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"autoRenew\": true\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/memberships/1/auto-renew",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "memberships", "1", "auto-renew"]
+            }
+          }
+        },
+        {
+          "name": "Получить истекающие подписки (7 дней)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/memberships/expiring?days=7",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "memberships", "expiring"],
+              "query": [{"key": "days", "value": "7"}]
+            }
+          }
+        },
+        {
+          "name": "Финансовый отчёт за период",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/memberships/financial-report?startDate=2025-01-01&endDate=2025-12-31",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "memberships", "financial-report"],
+              "query": [
+                {"key": "startDate", "value": "2025-01-01"},
+                {"key": "endDate", "value": "2025-12-31"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Создать тренировку с прошлой датой (для пропуска)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": 1,\n  \"trainerId\": 1,\n  \"sessionDate\": \"2024-12-20T10:00:00\",\n  \"duration\": 60,\n  \"notes\": \"Пропущенная тренировка\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/training-sessions",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "training-sessions"]
+            }
+          }
+        },
+        {
+          "name": "Получить пропущенные тренировки",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/training-sessions/missed",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "training-sessions", "missed"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Проверка безопасности",
+      "item": [
+        {
+          "name": "Получить членов БЕЗ токена (ошибка 401)",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Попытка регистрации с простым паролем",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"weakuser\",\n  \"email\": \"weak@test.com\",\n  \"password\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/signup",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Вход под админом",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', jsonData.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/login",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Проверка валидации пароля",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testpwd\",\n  \"email\": \"testpwd@test.com\",\n  \"password\": \"NoSpecialChar1\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/signup",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "signup"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. JWT Refresh Token Flow",
+      "item": [
+        {
+          "name": "Шаг 1: Логин (получить access и refresh)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "pm.collectionVariables.set('oldRefreshToken', jsonData.refreshToken);",
+                  "console.log('Tokens saved. Access:', jsonData.accessToken.substring(0, 20) + '...');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/login",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Шаг 2: Доступ к защищённому эндпоинту (с access token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"}
+            ],
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Шаг 3: Обновить токены (refresh)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "  console.log('New tokens received!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/refresh",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Шаг 4: Повторный refresh со СТАРЫМ токеном (ошибка 401/403)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{oldRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/refresh",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "accessToken", "value": ""},
+    {"key": "refreshToken", "value": ""},
+    {"key": "oldRefreshToken", "value": ""}
+  ]
+}
+
