@@ -1,5 +1,6 @@
 {
   "info": {
+    "_postman_id": "basic-auth-collection",
     "name": "FitnessClub - Basic Auth",
     "description": "Коллекция для тестирования с Basic HTTP авторизацией.\n\nBasic Auth передаёт логин:пароль в заголовке Authorization в формате: Basic base64(username:password)\n\nДля всех запросов используется вкладка Authorization → Basic Auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"

@@ -1,5 +1,6 @@
 {
   "info": {
+    "_postman_id": "jwt-tokens-collection",
     "name": "FitnessClub - JWT Tokens",
     "description": "Коллекция для тестирования с JWT авторизацией.\n\nШаги:\n1. POST /auth/login - получить access и refresh токены\n2. Использовать access токен в заголовке Authorization: Bearer <token>\n3. POST /auth/refresh - обновить токены",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"

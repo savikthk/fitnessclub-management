@@ -1,5 +1,6 @@
 {
   "info": {
+    "_postman_id": "csrf-protection-collection",
     "name": "FitnessClub - CSRF Protection",
     "description": "Коллекция для тестирования с CSRF защитой.\n\nШаги:\n1. Сначала выполните 'Get CSRF Token' для получения токена\n2. Токен автоматически сохранится в cookie XSRF-TOKEN\n3. Для POST/PUT/DELETE запросов добавьте заголовок X-XSRF-TOKEN",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
