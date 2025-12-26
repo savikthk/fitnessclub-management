@@ -1,0 +1,191 @@
+{
+  "info": {
+    "_postman_id": "basic-auth-collection",
+    "name": "FitnessClub - Basic Auth",
+    "description": "Коллекция для тестирования Basic HTTP авторизации",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "admin",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "Admin123!",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Создание сущностей",
+      "item": [
+        {
+          "name": "Регистрация пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user1\",\n  \"email\": \"user1@test.com\",\n  \"password\": \"User123!\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/auth/signup",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Создать члена клуба",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров\",\n  \"email\": \"ivan@test.com\",\n  \"phone\": \"+79001234567\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Создать тренера",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров\",\n  \"email\": \"trainer@test.com\",\n  \"phone\": \"+79007654321\",\n  \"specialization\": \"Фитнес\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:8443/api/trainers",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "trainers"]
+            }
+          }
+        },
+        {
+          "name": "Получить всех членов",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Получить всех тренеров",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "admin", "type": "string"},
+                {"key": "password", "value": "Admin123!", "type": "string"}
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/trainers",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "trainers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Без авторизации (должна быть ошибка 401)",
+      "item": [
+        {
+          "name": "Получить членов БЕЗ авторизации",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/members",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "members"]
+            }
+          }
+        },
+        {
+          "name": "Получить тренеров БЕЗ авторизации",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:8443/api/trainers",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "8443",
+              "path": ["api", "trainers"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
