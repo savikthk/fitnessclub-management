@@ -1,0 +1,659 @@
+{
+  "info": {
+    "name": "FitnessClub - Basic Auth",
+    "description": "Коллекция для тестирования с Basic HTTP авторизацией.\n\nBasic Auth передаёт логин:пароль в заголовке Authorization в формате: Basic base64(username:password)\n\nДля всех запросов используется вкладка Authorization → Basic Auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "admin",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "Admin123!",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:8443/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. CRUD Operations",
+      "description": "Создание, редактирование, удаление сущностей",
+      "item": [
+        {
+          "name": "Members",
+          "item": [
+            {
+              "name": "Create Member",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров\",\n  \"email\": \"ivan.petrov@example.com\",\n  \"phone\": \"+7-999-123-4567\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/members",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members"]
+                }
+              }
+            },
+            {
+              "name": "Create Member 2",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Мария\",\n  \"lastName\": \"Сидорова\",\n  \"email\": \"maria.sidorova@example.com\",\n  \"phone\": \"+7-999-765-4321\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/members",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members"]
+                }
+              }
+            },
+            {
+              "name": "Get All Members",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/members",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members"]
+                }
+              }
+            },
+            {
+              "name": "Get Member by ID",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/members/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members", "1"]
+                }
+              }
+            },
+            {
+              "name": "Update Member",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров-Обновлённый\",\n  \"email\": \"ivan.updated@example.com\",\n  \"phone\": \"+7-999-111-2222\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/members/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members", "1"]
+                }
+              }
+            },
+            {
+              "name": "Delete Member",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/members/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members", "1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Trainers",
+          "item": [
+            {
+              "name": "Create Trainer",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров\",\n  \"specialization\": \"Фитнес, Силовые тренировки\",\n  \"email\": \"trainer@example.com\",\n  \"phone\": \"+7-999-555-0001\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/trainers",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers"]
+                }
+              }
+            },
+            {
+              "name": "Get All Trainers",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/trainers",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers"]
+                }
+              }
+            },
+            {
+              "name": "Get Trainer by ID",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/trainers/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers", "1"]
+                }
+              }
+            },
+            {
+              "name": "Update Trainer",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров-Мастер\",\n  \"specialization\": \"Фитнес, Силовые тренировки, Йога\",\n  \"email\": \"trainer.master@example.com\",\n  \"phone\": \"+7-999-555-0002\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/trainers/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers", "1"]
+                }
+              }
+            },
+            {
+              "name": "Delete Trainer",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/trainers/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers", "1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Workout Classes",
+          "item": [
+            {
+              "name": "Create Workout Class",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Йога для начинающих\",\n  \"description\": \"Расслабляющая йога для новичков\",\n  \"duration\": 60,\n  \"maxParticipants\": 15,\n  \"trainerId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/workout-classes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["workout-classes"]
+                }
+              }
+            },
+            {
+              "name": "Get All Workout Classes",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/workout-classes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["workout-classes"]
+                }
+              }
+            },
+            {
+              "name": "Update Workout Class",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Йога продвинутая\",\n  \"description\": \"Йога для опытных практиков\",\n  \"duration\": 90,\n  \"maxParticipants\": 10,\n  \"trainerId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/workout-classes/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["workout-classes", "1"]
+                }
+              }
+            },
+            {
+              "name": "Delete Workout Class",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/workout-classes/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["workout-classes", "1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bookings",
+          "item": [
+            {
+              "name": "Create Booking",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": 1,\n  \"workoutClassId\": 1,\n  \"bookingDate\": \"2025-01-15T10:00:00\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings"]
+                }
+              }
+            },
+            {
+              "name": "Get All Bookings",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings"]
+                }
+              }
+            },
+            {
+              "name": "Cancel Booking",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "1"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Training Sessions & Memberships",
+      "description": "Персональные тренировки, подписки, отчёты",
+      "item": [
+        {
+          "name": "Training Sessions",
+          "item": [
+            {
+              "name": "Create Training Session",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": 1,\n  \"trainerId\": 1,\n  \"sessionDate\": \"2025-01-20T14:00:00\",\n  \"duration\": 60,\n  \"notes\": \"Персональная тренировка по силовым упражнениям\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions"]
+                }
+              }
+            },
+            {
+              "name": "Create Past Training Session (for missed check)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": 1,\n  \"trainerId\": 1,\n  \"sessionDate\": \"2025-12-20T10:00:00\",\n  \"duration\": 60,\n  \"notes\": \"Тренировка в прошлом для проверки пропусков\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions"]
+                }
+              }
+            },
+            {
+              "name": "Get All Training Sessions",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions"]
+                }
+              }
+            },
+            {
+              "name": "Get Sessions by Member",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions/member/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions", "member", "1"]
+                }
+              }
+            },
+            {
+              "name": "Get Sessions by Trainer",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions/trainer/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions", "trainer", "1"]
+                }
+              }
+            },
+            {
+              "name": "Get Missed Sessions Notifications",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions/missed",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions", "missed"]
+                }
+              }
+            },
+            {
+              "name": "Delete Training Session",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions", "1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Memberships",
+          "item": [
+            {
+              "name": "Create Membership for Member 1",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": 1,\n  \"type\": \"ANNUAL\",\n  \"startDate\": \"2025-01-01\",\n  \"endDate\": \"2026-01-01\",\n  \"price\": 50000.00,\n  \"autoRenewal\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/memberships",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships"]
+                }
+              }
+            },
+            {
+              "name": "Create Membership for Member 2 (expiring soon)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": 2,\n  \"type\": \"MONTHLY\",\n  \"startDate\": \"2024-12-01\",\n  \"endDate\": \"2025-01-05\",\n  \"price\": 5000.00,\n  \"autoRenewal\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/memberships",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships"]
+                }
+              }
+            },
+            {
+              "name": "Get All Memberships",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/memberships",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships"]
+                }
+              }
+            },
+            {
+              "name": "Get Expiring Memberships (7 days)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/memberships/expiring?days=7",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships", "expiring"],
+                  "query": [
+                    {
+                      "key": "days",
+                      "value": "7"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Toggle Auto Renewal",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{baseUrl}}/memberships/1/auto-renewal?enabled=true",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships", "1", "auto-renewal"],
+                  "query": [
+                    {
+                      "key": "enabled",
+                      "value": "true"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Financial Reports",
+          "item": [
+            {
+              "name": "Get Financial Report",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/memberships/financial-report?startDate=2025-01-01&endDate=2025-12-31",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships", "financial-report"],
+                  "query": [
+                    {
+                      "key": "startDate",
+                      "value": "2025-01-01"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2025-12-31"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Security Checks",
+      "description": "Проверка безопасности: доступ без авторизации, слабые пароли",
+      "item": [
+        {
+          "name": "Access Without Auth",
+          "item": [
+            {
+              "name": "Try GET Members without Auth",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/members",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members"]
+                }
+              }
+            },
+            {
+              "name": "Try GET Trainers without Auth",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/trainers",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Admin",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        },
+        {
+          "name": "Signup with Weak Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"weakuser\",\n  \"email\": \"weak@example.com\",\n  \"password\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Signup with Valid Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"StrongPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

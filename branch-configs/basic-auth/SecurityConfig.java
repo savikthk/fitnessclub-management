@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +18,11 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Security Configuration с Basic HTTP авторизацией
  * Ветка: demo/basic-auth
+ *
+ * Basic Auth передаёт логин:пароль в заголовке Authorization
+ * в формате: Basic base64(username:password)
+ *
+ * Пример: Authorization: Basic YWRtaW46QWRtaW4xMjMh
  */
 @Configuration
 @EnableWebSecurity
@@ -46,16 +52,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Отключаем CSRF для простоты тестирования Basic Auth
         http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**", "/error").permitAll()
+                .requestMatchers("/api/auth/signup", "/h2-console/**", "/error").permitAll()
                 .anyRequest().authenticated()
         );
 
-        http.httpBasic(basic -> {});
+        // Включаем Basic HTTP авторизацию
+        http.httpBasic(Customizer.withDefaults());
+
+        // Для H2 консоли
         http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
     }
 }
+
