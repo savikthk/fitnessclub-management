@@ -92,4 +92,43 @@ public class BookingService {
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
     }
+
+    public Booking updateBooking(Long bookingId, Long newClassId, String newStatus) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        // Обновление класса, если передан новый
+        if (newClassId != null && !newClassId.equals(booking.getWorkoutClass().getId())) {
+            Member member = booking.getMember();
+            if (!membershipService.hasActiveMembership(member)) {
+                throw new RuntimeException("Member does not have an active membership");
+            }
+
+            WorkoutClass newClass = workoutClassRepository.findById(newClassId)
+                    .orElseThrow(() -> new RuntimeException("Workout class not found"));
+
+            if (!newClass.isUpcoming()) {
+                throw new RuntimeException("Cannot rebook to a past class");
+            }
+            if (!newClass.hasAvailableSpots()) {
+                throw new RuntimeException("No available spots in the new class");
+            }
+            if (bookingRepository.existsByMemberAndWorkoutClass(member, newClass)) {
+                throw new RuntimeException("Member is already booked for this class");
+            }
+            booking.setWorkoutClass(newClass);
+        }
+
+        // Обновление статуса, если передан новый
+        if (newStatus != null) {
+            try {
+                Booking.BookingStatus statusEnum = Booking.BookingStatus.valueOf(newStatus.toUpperCase());
+                booking.setStatus(statusEnum);
+            } catch (IllegalArgumentException ex) {
+                throw new RuntimeException("Invalid status value");
+            }
+        }
+
+        return bookingRepository.save(booking);
+    }
 }
