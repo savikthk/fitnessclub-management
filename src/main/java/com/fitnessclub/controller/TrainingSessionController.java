@@ -67,4 +67,20 @@ public class TrainingSessionController {
     public List<TrainingSessionResponse> getAllSessions() {
         return trainingSessionService.getAllSessions();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTrainingSession(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long trainerId,
+            @RequestParam(required = false) String sessionDate,
+            @RequestParam(required = false) Integer duration,
+            @RequestParam(required = false) String status) {
+        try {
+            TrainingSessionResponse session = trainingSessionService.updateTrainingSession(
+                    id, trainerId, sessionDate, duration, status);
+            return ResponseEntity.ok(session);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

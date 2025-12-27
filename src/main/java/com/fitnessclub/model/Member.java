@@ -1,5 +1,6 @@
 package com.fitnessclub.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,9 +25,11 @@ public class Member {
     @Column(nullable = false)
     private String phoneNumber;
 
+    @JsonManagedReference("member-memberships")
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Membership> memberships = new ArrayList<>();
 
+    @JsonManagedReference("member-bookings")
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Booking> bookings = new ArrayList<>();
 

@@ -1,0 +1,249 @@
+{
+  "info": {
+    "_postman_id": "csrf-protection-collection",
+    "name": "FitnessClub - CSRF Protection",
+    "description": "Коллекция для тестирования с CSRF защитой.\n\nШаги:\n1. Сначала выполните 'Get CSRF Token' для получения токена\n2. Токен автоматически сохранится в cookie XSRF-TOKEN\n3. Для POST/PUT/DELETE запросов добавьте заголовок X-XSRF-TOKEN",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "admin",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "Admin123!",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:8443/api"
+    },
+    {
+      "key": "csrfToken",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Автоматически добавляем CSRF токен из cookie в заголовок",
+          "var xsrfCookie = pm.cookies.get('XSRF-TOKEN');",
+          "if (xsrfCookie) {",
+          "    pm.request.headers.add({",
+          "        key: 'X-XSRF-TOKEN',",
+          "        value: xsrfCookie",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Get CSRF Token (Run First!)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Сохраняем CSRF токен из cookie",
+              "var xsrfCookie = pm.cookies.get('XSRF-TOKEN');",
+              "if (xsrfCookie) {",
+              "    pm.collectionVariables.set('csrfToken', xsrfCookie);",
+              "    console.log('CSRF Token saved: ' + xsrfCookie);",
+              "}",
+              "",
+              "pm.test('CSRF Token received', function() {",
+              "    pm.expect(xsrfCookie).to.not.be.undefined;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/csrf",
+          "host": ["{{baseUrl}}"],
+          "path": ["csrf"]
+        }
+      }
+    },
+    {
+      "name": "2. CSRF Protected Operations",
+      "description": "Запросы, требующие CSRF токен",
+      "item": [
+        {
+          "name": "Create Member (with CSRF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров\",\n  \"email\": \"ivan@example.com\",\n  \"phone\": \"+7-999-123-4567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        },
+        {
+          "name": "Create Trainer (with CSRF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров\",\n  \"specialization\": \"Фитнес\",\n  \"email\": \"trainer@example.com\",\n  \"phone\": \"+7-999-555-0001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/trainers",
+              "host": ["{{baseUrl}}"],
+              "path": ["trainers"]
+            }
+          }
+        },
+        {
+          "name": "Update Member (with CSRF)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Обновлённый\",\n  \"email\": \"ivan.updated@example.com\",\n  \"phone\": \"+7-999-111-2222\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["members", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Member (with CSRF)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/members/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["members", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. CSRF Attack Simulation",
+      "description": "Попытка запроса БЕЗ CSRF токена - должна быть отклонена",
+      "item": [
+        {
+          "name": "POST without CSRF Token (should fail 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Хакер\",\n  \"lastName\": \"Злоумышленник\",\n  \"email\": \"hacker@example.com\",\n  \"phone\": \"+7-999-666-6666\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        },
+        {
+          "name": "DELETE without CSRF Token (should fail 403)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/members/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["members", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. GET Requests (no CSRF needed)",
+      "description": "GET запросы не требуют CSRF токен",
+      "item": [
+        {
+          "name": "Get All Members",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        },
+        {
+          "name": "Get All Trainers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/trainers",
+              "host": ["{{baseUrl}}"],
+              "path": ["trainers"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
