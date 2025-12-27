@@ -288,20 +288,29 @@
               "name": "Create Booking",
               "request": {
                 "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"memberId\": 1,\n  \"workoutClassId\": 1,\n  \"bookingDate\": \"2025-01-15T10:00:00\"\n}"
-                },
                 "url": {
-                  "raw": "{{baseUrl}}/bookings",
+                  "raw": "{{baseUrl}}/bookings?memberId=1&classId=1",
                   "host": ["{{baseUrl}}"],
-                  "path": ["bookings"]
+                  "path": ["bookings"],
+                  "query": [
+                    { "key": "memberId", "value": "1" },
+                    { "key": "classId", "value": "1" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Booking (class and/or status)",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/1?classId=2&status=CANCELLED",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "1"],
+                  "query": [
+                    { "key": "classId", "value": "2" },
+                    { "key": "status", "value": "CANCELLED" }
+                  ]
                 }
               }
             },
@@ -319,11 +328,11 @@
             {
               "name": "Cancel Booking",
               "request": {
-                "method": "DELETE",
+                "method": "POST",
                 "url": {
-                  "raw": "{{baseUrl}}/bookings/1",
+                  "raw": "{{baseUrl}}/bookings/1/cancel",
                   "host": ["{{baseUrl}}"],
-                  "path": ["bookings", "1"]
+                  "path": ["bookings", "1", "cancel"]
                 }
               }
             }
@@ -657,4 +666,3 @@
     }
   ]
 }
-
