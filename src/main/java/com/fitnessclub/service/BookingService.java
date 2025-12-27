@@ -78,62 +78,7 @@ public class BookingService {
     }
 
     @Transactional
-    public Booking updateBooking(Long bookingId, Long newClassId, String status) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        boolean changed = false;
-
-        if (newClassId != null) {
-            WorkoutClass newClass = workoutClassRepository.findById(newClassId)
-                    .orElseThrow(() -> new RuntimeException("Workout class not found"));
-
-            if (!newClass.isUpcoming()) {
-                throw new RuntimeException("Cannot move booking to past class");
-            }
-            if (!newClass.hasAvailableSpots()) {
-                throw new RuntimeException("No available spots in target class");
-            }
-            if (bookingRepository.existsByMemberAndWorkoutClass(booking.getMember(), newClass)) {
-                throw new RuntimeException("Member already booked for target class");
-            }
-
-            booking.setWorkoutClass(newClass);
-            changed = true;
-        }
-
-        if (status != null) {
-            try {
-                Booking.BookingStatus newStatus = Booking.BookingStatus.valueOf(status.toUpperCase());
-                booking.setStatus(newStatus);
-                changed = true;
-            } catch (IllegalArgumentException ex) {
-                throw new RuntimeException("Invalid status value");
-            }
-        }
-
-        if (!changed) {
-            throw new RuntimeException("Nothing to update");
-        }
-
-        return bookingRepository.save(booking);
-    }
-
-    public List<Booking> getMemberBookings(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
-        return bookingRepository.findByMember(member);
-    }
-
-    public List<Booking> getClassBookings(Long classId) {
-        WorkoutClass workoutClass = workoutClassRepository.findById(classId)
-                .orElseThrow(() -> new RuntimeException("Workout class not found"));
-        return bookingRepository.findByWorkoutClass(workoutClass);
-    }
-
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
-    }
 
     public Booking updateBooking(Long bookingId, Long newClassId, String newStatus) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -172,5 +117,21 @@ public class BookingService {
         }
 
         return bookingRepository.save(booking);
+    }
+
+    public List<Booking> getMemberBookings(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        return bookingRepository.findByMember(member);
+    }
+
+    public List<Booking> getClassBookings(Long classId) {
+        WorkoutClass workoutClass = workoutClassRepository.findById(classId)
+                .orElseThrow(() -> new RuntimeException("Workout class not found"));
+        return bookingRepository.findByWorkoutClass(workoutClass);
+    }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
     }
 }
