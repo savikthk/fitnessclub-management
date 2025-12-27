@@ -104,6 +104,39 @@ public class TrainingSessionService {
                 .collect(Collectors.toList());
     }
 
+    public TrainingSessionResponse updateTrainingSession(Long sessionId, Long trainerId,
+                                                          String sessionDate, Integer duration, String status) {
+        TrainingSession session = trainingSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Training session not found with id: " + sessionId));
+
+        if (trainerId != null && !trainerId.equals(session.getTrainer().getId())) {
+            Trainer newTrainer = trainerRepository.findById(trainerId)
+                    .orElseThrow(() -> new RuntimeException("Trainer not found with id: " + trainerId));
+            session.setTrainer(newTrainer);
+        }
+
+        if (sessionDate != null) {
+            LocalDateTime newDate = LocalDateTime.parse(sessionDate);
+            session.setSessionDate(newDate);
+        }
+
+        if (duration != null) {
+            session.setDuration(duration);
+        }
+
+        if (status != null) {
+            try {
+                TrainingSession.TrainingStatus statusEnum = TrainingSession.TrainingStatus.valueOf(status.toUpperCase());
+                session.setStatus(statusEnum);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid status value: " + status);
+            }
+        }
+
+        TrainingSession savedSession = trainingSessionRepository.save(session);
+        return new TrainingSessionResponse(savedSession);
+    }
+
     private boolean isTrainerBusy(Long trainerId, LocalDateTime sessionDate) {
         LocalDateTime sessionStart = sessionDate.minusMinutes(30);
         LocalDateTime sessionEnd = sessionDate.plusMinutes(60);

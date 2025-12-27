@@ -111,4 +111,36 @@ public class MembershipService {
     public Optional<Membership> getCurrentMembership(Member member) {
         return membershipRepository.findFirstByMemberOrderByEndDateDesc(member);
     }
+
+    public MembershipResponse updateMembership(Long membershipId, String type, String endDate, Double price) {
+        Membership membership = membershipRepository.findById(membershipId)
+                .orElseThrow(() -> new RuntimeException("Membership not found with id: " + membershipId));
+
+        if (type != null) {
+            try {
+                Membership.MembershipType typeEnum = Membership.MembershipType.valueOf(type.toUpperCase());
+                membership.setType(typeEnum);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid membership type: " + type);
+            }
+        }
+
+        if (endDate != null) {
+            LocalDate newEndDate = LocalDate.parse(endDate);
+            membership.setEndDate(newEndDate);
+        }
+
+        if (price != null) {
+            membership.setPrice(price);
+        }
+
+        Membership savedMembership = membershipRepository.save(membership);
+        return new MembershipResponse(savedMembership);
+    }
+
+    public void deleteMembership(Long membershipId) {
+        Membership membership = membershipRepository.findById(membershipId)
+                .orElseThrow(() -> new RuntimeException("Membership not found with id: " + membershipId));
+        membershipRepository.delete(membership);
+    }
 }
