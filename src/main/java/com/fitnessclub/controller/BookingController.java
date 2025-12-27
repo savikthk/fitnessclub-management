@@ -57,13 +57,8 @@ public class BookingController {
                                            @RequestParam(required = false) Long classId,
                                            @RequestParam(required = false) String status) {
         try {
-<<<<<<< HEAD
             Booking updated = bookingService.updateBooking(id, classId, status);
             return ResponseEntity.ok(updated);
-=======
-            Booking booking = bookingService.updateBooking(id, classId, status);
-            return ResponseEntity.ok(booking);
->>>>>>> origin/main
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
