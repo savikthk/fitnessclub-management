@@ -64,4 +64,28 @@ public class MembershipController {
     public List<MembershipResponse> getMemberMemberships(@PathVariable Long memberId) {
         return membershipService.getMemberMemberships(memberId);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateMembership(
+            @PathVariable Long id,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Double price) {
+        try {
+            MembershipResponse membership = membershipService.updateMembership(id, type, endDate, price);
+            return ResponseEntity.ok(membership);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteMembership(@PathVariable Long id) {
+        try {
+            membershipService.deleteMembership(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
