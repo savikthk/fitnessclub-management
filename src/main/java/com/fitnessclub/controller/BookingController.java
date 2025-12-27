@@ -51,4 +51,16 @@ public class BookingController {
     public List<Booking> getAllBookings() {
         return bookingService.getAllBookings();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBooking(@PathVariable Long id,
+                                           @RequestParam(required = false) Long classId,
+                                           @RequestParam(required = false) String status) {
+        try {
+            Booking booking = bookingService.updateBooking(id, classId, status);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

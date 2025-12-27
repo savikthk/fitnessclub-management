@@ -1,0 +1,531 @@
+{
+  "info": {
+    "_postman_id": "jwt-tokens-collection",
+    "name": "FitnessClub - JWT Tokens",
+    "description": "Коллекция для тестирования с JWT авторизацией.\n\nШаги:\n1. POST /auth/login - получить access и refresh токены\n2. Использовать access токен в заголовке Authorization: Bearer <token>\n3. POST /auth/refresh - обновить токены",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:8443/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "oldRefreshToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "4. JWT Token Flow",
+      "description": "Полный цикл работы с JWT токенами",
+      "item": [
+        {
+          "name": "Step 1: Login and Get Tokens",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "if (jsonData.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "    console.log('Access Token saved');",
+                  "}",
+                  "",
+                  "if (jsonData.refreshToken) {",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "    console.log('Refresh Token saved');",
+                  "}",
+                  "",
+                  "pm.test('Login successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(jsonData.accessToken).to.not.be.undefined;",
+                  "    pm.expect(jsonData.refreshToken).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Step 2: Access Protected Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Access with token successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        },
+        {
+          "name": "Step 3: Refresh Tokens",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Сохраняем старый refresh token для следующего теста",
+                  "var currentRefresh = pm.collectionVariables.get('refreshToken');",
+                  "pm.collectionVariables.set('oldRefreshToken', currentRefresh);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "if (jsonData.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "    console.log('New Access Token saved');",
+                  "}",
+                  "",
+                  "if (jsonData.refreshToken) {",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "    console.log('New Refresh Token saved');",
+                  "}",
+                  "",
+                  "pm.test('Refresh successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(jsonData.accessToken).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Step 4: Try Old Refresh Token (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Old refresh token rejected', function() {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "console.log('Old refresh token correctly rejected with status: ' + pm.response.code);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{oldRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Protected Endpoints (with JWT)",
+      "description": "Запросы с JWT авторизацией",
+      "item": [
+        {
+          "name": "Members",
+          "item": [
+            {
+              "name": "Create Member",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Иван\",\n  \"lastName\": \"Петров\",\n  \"email\": \"ivan@example.com\",\n  \"phone\": \"+7-999-123-4567\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/members",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members"]
+                }
+              }
+            },
+            {
+              "name": "Get All Members",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/members",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["members"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Trainers",
+          "item": [
+            {
+              "name": "Create Trainer",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Алексей\",\n  \"lastName\": \"Тренеров\",\n  \"specialization\": \"Фитнес\",\n  \"email\": \"trainer@example.com\",\n  \"phone\": \"+7-999-555-0001\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/trainers",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers"]
+                }
+              }
+            },
+            {
+              "name": "Get All Trainers",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/trainers",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["trainers"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Training Sessions",
+          "item": [
+            {
+              "name": "Create Training Session",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": 1,\n  \"trainerId\": 1,\n  \"sessionDate\": \"2025-01-20T14:00:00\",\n  \"duration\": 60,\n  \"notes\": \"Персональная тренировка\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions"]
+                }
+              }
+            },
+            {
+              "name": "Get All Training Sessions",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/training-sessions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["training-sessions"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Memberships",
+          "item": [
+            {
+              "name": "Create Membership",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": 1,\n  \"type\": \"ANNUAL\",\n  \"startDate\": \"2025-01-01\",\n  \"endDate\": \"2026-01-01\",\n  \"price\": 50000.00,\n  \"autoRenewal\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/memberships",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships"]
+                }
+              }
+            },
+            {
+              "name": "Get Financial Report",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/memberships/financial-report?startDate=2025-01-01&endDate=2025-12-31",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["memberships", "financial-report"],
+                  "query": [
+                    {
+                      "key": "startDate",
+                      "value": "2025-01-01"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2025-12-31"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Access Without Token (should fail)",
+      "description": "Попытки доступа без токена",
+      "item": [
+        {
+          "name": "Try GET Members without Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Access denied without token', function() {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        },
+        {
+          "name": "Try with Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Invalid token rejected', function() {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "invalid.token.here",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["members"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
